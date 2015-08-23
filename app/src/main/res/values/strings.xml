@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Mogoneba</string>
+    <string name="login_button_text">Mogoneba! Log in</string>
+    <string name="register_button_text">Mogoneba! Register</string>
+    <string name="facebook_button_login">Facebook Log in</string>
+    <string name="google_button_login">Google Log in</string>
 </resources>
