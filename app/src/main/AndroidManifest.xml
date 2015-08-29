@@ -18,8 +18,19 @@
         <activity android:name=".activities.LoginActivity" />
 
         <activity android:name=".activities.LoginNarrowActivity" />
+
         <activity android:name=".activities.RegisterActivity" />
+
         <activity android:name=".activities.ExternalLoginActivity" />
-    </application>
+
+        <activity android:name=".activities.ProfileActivity" />
+
+        <activity android:name=".activities.ContactsActivity" />
+
+        <activity android:name=".activities.SentMessagesActivity" />
+        
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
+
+     </application>
 
 </manifest>
