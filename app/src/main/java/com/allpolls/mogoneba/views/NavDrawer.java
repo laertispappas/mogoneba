@@ -44,6 +44,12 @@ public class NavDrawer {
                 setOpen(!isOpen());
             }
         });
+
+        activity.getMogonebaApplication().getBus().register(this);
+    }
+
+    public void destroy() {
+        activity.getMogonebaApplication().getBus().unregister(this);
     }
 
     public void addItem(NavDrawerItem item) {

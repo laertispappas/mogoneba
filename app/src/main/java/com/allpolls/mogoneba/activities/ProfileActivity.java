@@ -1,6 +1,9 @@
 package com.allpolls.mogoneba.activities;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -18,8 +21,11 @@ import android.widget.RelativeLayout;
 import com.allpolls.mogoneba.R;
 import com.allpolls.mogoneba.dialogs.ChangePasswordDialog;
 import com.allpolls.mogoneba.infrastructure.User;
+import com.allpolls.mogoneba.services.Account;
 import com.allpolls.mogoneba.views.MainNavDrawer;
 import com.soundcloud.android.crop.Crop;
+import com.squareup.otto.Subscribe;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,6 +39,8 @@ public class ProfileActivity extends BaseAuthenticatedActivity implements View.O
 
     private static final String BUNDLE_STATE = "BUNDLE_STATE";
 
+    private static boolean isProgressBarVisible;
+
     private int currentState;
     private EditText displayNameText;
     private EditText emailText;
@@ -41,6 +49,7 @@ public class ProfileActivity extends BaseAuthenticatedActivity implements View.O
     private ImageView avatarView;
     private View avatarProgressFrame;
     private File tempOutputFile;
+    private Dialog progressDialog;
 
     @Override
     protected void onMogonebaCreate(Bundle savedState) {
@@ -70,15 +79,18 @@ public class ProfileActivity extends BaseAuthenticatedActivity implements View.O
 
         User user = application.getAuth().getUser();
         getSupportActionBar().setTitle(user.getDisplayName());
+        Picasso.with(this).load(user.getAvatarUrl()).into(avatarView);
 
 
         if (savedState == null){
             displayNameText.setText(user.getDisplayName());
             emailText.setText(user.getEmail());
             changeState(STATE_VIEWING);
-        } else {
+        } else
             changeState(savedState.getInt(BUNDLE_STATE));
-        }
+
+        if(isProgressBarVisible)
+            setProgressBarVisible(true);
     }
 
     @Override
@@ -137,10 +149,47 @@ public class ProfileActivity extends BaseAuthenticatedActivity implements View.O
                     .output(tempFileUri)
                     .start(this);
         } else if (requestCode == Crop.REQUEST_CROP) {
-            // todo: send tempFIle Uri to server as new avatar
-            avatarView.setImageResource(0);
-            avatarView.setImageURI(Uri.fromFile(tempOutputFile));
+            avatarProgressFrame.setVisibility(View.VISIBLE);
+            bus.post(new Account.ChangeAvatarRequest(Uri.fromFile(tempOutputFile)));
         }
+    }
+
+    @Subscribe
+    public void onAvatarUpdated(Account.ChangeAvatarResponse response) {
+        avatarProgressFrame.setVisibility(View.GONE);
+        if (!response.didSucceed())
+            response.showErrorToast(this);
+    }
+
+    @Subscribe
+    public void onProfileUpdated(Account.UpdateProfileResponse response) {
+        if (!response.didSucceed()) {
+            response.showErrorToast(this);
+            changeState(STATE_EDITING);
+        }
+
+        displayNameText.setError(response.getPropertyError("displayName"));
+        emailText.setError(response.getPropertyError("email"));
+        setProgressBarVisible(false);
+    }
+    @Subscribe
+    public void onUserDetailsUpdated(Account.UserDetailsUpdatedEvent event) {
+        getSupportActionBar().setTitle(event.User.getDisplayName());
+        Picasso.with(this).load(event.User.getAvatarUrl()).into(avatarView);
+    }
+
+    private void setProgressBarVisible(boolean visible) {
+        if (visible) {
+            progressDialog = new ProgressDialog.Builder(this)
+                    .setTitle("Updating profile")
+                    .setCancelable(false)
+                    .show();
+        } else if (progressDialog != null) {
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
+
+        isProgressBarVisible = visible;
     }
 
     @Override
@@ -214,12 +263,13 @@ public class ProfileActivity extends BaseAuthenticatedActivity implements View.O
             int itemId = item.getItemId();
 
             if (itemId == R.id.activity_profile_edit_menuDone) {
-                // TODO: Send request to update display name and email
-                User user = application.getAuth().getUser();
-                user.setDisplayName(displayNameText.getText().toString());
-                user.setEmail(emailText.getText().toString());
-
+                setProgressBarVisible(true);
                 changeState(STATE_VIEWING);
+
+                bus.post(new Account.UpdateProfileRequest(
+                        displayNameText.getText().toString(),
+                        emailText.getText().toString()));
+
                 return true;
             }
 

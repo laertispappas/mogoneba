@@ -57,7 +57,8 @@
                 android:id="@+id/activity_register_prograssBar"
                 android:layout_centerHorizontal="true"
                 android:layout_alignTop="@id/activity_register_registerButton"
-                android:layout_alignBottom="@id/activity_register_registerButton"/>
+                android:layout_alignBottom="@id/activity_register_registerButton"
+                style="?android:attr/progressBarStyleSmallInverse"/>
 
         </RelativeLayout>
 

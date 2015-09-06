@@ -10,22 +10,72 @@ import android.util.DisplayMetrics;
 import android.view.View;
 
 import com.allpolls.mogoneba.R;
+import com.allpolls.mogoneba.infrastructure.ActionScheduler;
 import com.allpolls.mogoneba.infrastructure.MogonebaApplication;
 import com.allpolls.mogoneba.views.NavDrawer;
+import com.squareup.otto.Bus;
 
 public abstract class BaseActivity extends ActionBarActivity{
+    private boolean isRegisteredWithBus;
+
     protected MogonebaApplication application;
     protected Toolbar toolbar;
     protected NavDrawer navDrawer;
     protected boolean isTablet;
+    protected Bus bus;
+    protected ActionScheduler scheduler;
 
     @Override
     protected void onCreate(Bundle savedState){
         super.onCreate(savedState);
         application = (MogonebaApplication) getApplication();
+        bus = application.getBus();
+        scheduler = new ActionScheduler(application);
 
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         isTablet = (metrics.widthPixels / metrics.density) >= 600;
+
+        bus.register(this);
+        isRegisteredWithBus = true;
+    }
+
+    public ActionScheduler getScheduler(){
+        return scheduler;
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        scheduler.onResume();
+    }
+
+    @Override protected void onPause(){
+        super.onPause();
+        scheduler.onPause();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+
+        if(isRegisteredWithBus) {
+            bus.unregister(this);
+            isRegisteredWithBus = false;
+        }
+
+        // not all activities have a navDrawer
+        if(navDrawer != null)
+            navDrawer.destroy();
+    }
+
+    @Override
+    public void finish(){
+        super.finish();
+
+        if(isRegisteredWithBus) {
+            bus.unregister(this);
+            isRegisteredWithBus = false;
+        }
     }
 
     @Override

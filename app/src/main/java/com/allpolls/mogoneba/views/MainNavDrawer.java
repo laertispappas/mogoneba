@@ -12,6 +12,9 @@ import com.allpolls.mogoneba.activities.MainActivity;
 import com.allpolls.mogoneba.activities.ProfileActivity;
 import com.allpolls.mogoneba.activities.SentMessagesActivity;
 import com.allpolls.mogoneba.infrastructure.User;
+import com.allpolls.mogoneba.services.Account;
+import com.squareup.otto.Subscribe;
+import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
@@ -30,7 +33,7 @@ public class MainNavDrawer extends NavDrawer {
         addItem(new BasicNavDrawerItem("Logout", null, R.drawable.abc_btn_borderless_material, R.id.include_main_nav_drawer_bottomItems) {
             @Override
             public void onClick(View view) {
-                Toast.makeText(activity, "You have logged out", Toast.LENGTH_LONG).show();
+                activity.getMogonebaApplication().getAuth().logout();
             }
         });
 
@@ -40,6 +43,13 @@ public class MainNavDrawer extends NavDrawer {
         User loggedInUser = activity.getMogonebaApplication().getAuth().getUser();
         displayNameText.setText(loggedInUser.getDisplayName());
 
-        // @todo: change avatar image to avatarUrl from loggedInUser
+        Picasso.with(activity).load(loggedInUser.getAvatarUrl()).into(avatarImage);
+
+    }
+
+    @Subscribe
+    public void onUserDetailsUpdated(Account.UserDetailsUpdatedEvent event) {
+        Picasso.with(activity).load(event.User.getAvatarUrl()).into(avatarImage);
+        displayNameText.setText(event.User.getDisplayName());
     }
 }
