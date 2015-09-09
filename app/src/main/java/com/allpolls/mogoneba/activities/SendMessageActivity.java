@@ -23,6 +23,7 @@ import com.squareup.picasso.Picasso;
 public class SendMessageActivity extends BaseAuthenticatedActivity implements View.OnClickListener {
     public static final String EXTRA_IMAGE_PATH = "EXTRA_IMAGE_PATH";
     public static final String EXTRA_CONTACT = "EXTRA_CONTACT";
+    public static final String RESULT_MESSAGE = "RESULT_MESSAGE";
 
     public static final int MAX_IMAGE_HEIGHT = 1000;
 
@@ -52,7 +53,12 @@ public class SendMessageActivity extends BaseAuthenticatedActivity implements Vi
 
         if (imageUri != null) {
             ImageView image = (ImageView) findViewById(R.id.activity_send_message_image);
-            Picasso.with(this).load(imageUri).into(image);
+
+            Picasso picasso = Picasso.with(this);
+            picasso.invalidate(imageUri);           // do not cache image
+            picasso.load(imageUri).into(image);
+
+            request.setImagePath(imageUri);
         }
 
         if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_PORTRAIT) {
@@ -177,7 +183,10 @@ public class SendMessageActivity extends BaseAuthenticatedActivity implements Vi
             return;
         }
 
-        setResult(RESULT_OK);
+        Intent data = new Intent();
+        data.putExtra(RESULT_MESSAGE, response.Message);
+
+        setResult(RESULT_OK, data);
         finish();
     }
 }

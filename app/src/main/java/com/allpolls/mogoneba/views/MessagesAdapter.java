@@ -33,12 +33,17 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessageViewHolder> imp
         View view = layoutInflater.inflate(R.layout.list_item_message, parent, false);
         view.setOnClickListener(this);
 
-        return new MessageViewHolder(view);
+        MessageViewHolder viewHolder = new MessageViewHolder(view);
+        viewHolder.getBackgroundView().setOnClickListener(this);
+
+        return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(MessageViewHolder messageViewHolder, int position) {
-        messageViewHolder.populate(activity, messages.get(position));
+        Message message = messages.get(position);
+        messageViewHolder.getBackgroundView().setTag(message);
+        messageViewHolder.populate(activity, message);
     }
 
     @Override

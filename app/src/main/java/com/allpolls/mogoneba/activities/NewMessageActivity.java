@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.allpolls.mogoneba.R;
+import com.allpolls.mogoneba.services.entities.Message;
 import com.allpolls.mogoneba.services.entities.UserDetails;
 import com.allpolls.mogoneba.views.CameraPreview;
 
@@ -199,6 +200,13 @@ public class NewMessageActivity extends BaseAuthenticatedActivity implements Vie
         if (requestCode == REQUEST_SEND_MESSAGE && resultCode == RESULT_OK) {
             setResult(RESULT_OK);
             finish();
+
+            // extract message object returned by server
+            Message message = data.getParcelableExtra(SendMessageActivity.RESULT_MESSAGE);
+
+            Intent intent = new Intent(this, MessageActivity.class);
+            intent.putExtra(MessageActivity.EXTRA_MESSAGE, message);
+            startActivity(intent);
         }
     }
 }

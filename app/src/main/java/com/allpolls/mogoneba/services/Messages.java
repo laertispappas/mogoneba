@@ -39,6 +39,7 @@ public final class Messages {
         }
 
         public SearchMessagesRequest(boolean includeSentMessages, boolean includeReceivedMessages) {
+            FromContactId = -1;             // notify server search query does not include contactId
             IncludeReceivedMessages = includeReceivedMessages;
             IncludeSentMessages = includeSentMessages;
         }
@@ -112,6 +113,29 @@ public final class Messages {
     }
 
     public static class SendMessageResponse extends ServiceResponse {
+        public Message Message;
+    }
 
+    public static class MarkMessageAsReadRequest {
+        public int MessageId;
+
+        public MarkMessageAsReadRequest(int messageId) {
+            MessageId = messageId;
+        }
+    }
+
+    public static class MarkMessageAsReadResponse extends ServiceResponse {
+    }
+
+    public static class GetMessageDetailsRequest {
+        public int Id;
+
+        public GetMessageDetailsRequest(int id) {
+            Id = id;
+        }
+    }
+
+    public static class GetMessageDetailsResponse extends ServiceResponse {
+        public Message Message;
     }
 }

@@ -4,14 +4,21 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.HashMap;
+import java.util.TreeMap;
 
 public abstract class ServiceResponse {
     private static final String TAG = "ServiceResponce";
 
+    @SerializedName("operationError")
     private String operationError;
+
+    @SerializedName("propertyErrors")
     private HashMap<String, String> propertyErrors;
     private boolean isCritical;
+    private TreeMap<String, String> propertyErrorsCaseInsensitive;
 
     public ServiceResponse(){
         propertyErrors = new HashMap<>();
@@ -42,12 +49,22 @@ public abstract class ServiceResponse {
         this.isCritical = isCritical;
     }
 
+    public void setCriticalError(String criticalError) {
+        isCritical = true;
+        operationError = criticalError;         // 500 ...
+    }
+
     public void setPropertyError(String property, String error){
         propertyErrors.put(property, error);
     }
 
     public String getPropertyError(String property){
-        return propertyErrors.get(property);
+        if (propertyErrorsCaseInsensitive == null || propertyErrorsCaseInsensitive.size() != propertyErrors.size()) {
+            propertyErrorsCaseInsensitive = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            propertyErrorsCaseInsensitive.putAll(propertyErrors);
+        }
+
+        return propertyErrorsCaseInsensitive.get(property);
     }
 
     public boolean didSucceed() {
