@@ -40,6 +40,7 @@ public class Auth {
         this.authToken = authToken;
 
         SharedPreferences.Editor editor = preferences.edit();
+
         editor.putString(AUTH_PREFERENCES_TOKEN, authToken);
         editor.commit();
     }
