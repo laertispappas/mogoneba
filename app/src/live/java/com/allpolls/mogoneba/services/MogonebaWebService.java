@@ -23,7 +23,7 @@ import retrofit.mime.TypedString;
 public interface MogonebaWebService{
     // ---------------------------------------------------------------------------------------------
     // Account
-    @POST("/api/v1/sessions")
+    @POST("/token")
     @FormUrlEncoded
     void login(
             @Field("username") String username,
@@ -36,7 +36,7 @@ public interface MogonebaWebService{
     @POST("/api/v1/account/external/token")
     void loginWithExternalToken(@Body Account.LoginWithExternalTokenRequest request, Callback<Account.LoginWithLocalTokenResponse> callback);
 
-    @POST("/api/v1/users")
+    @POST("/api/v1/account")
     void register(@Body Account.RegisterRequest request, Callback<Account.RegisterResponse> callback);
 
     @POST("/api/v1/account/external")

@@ -15,8 +15,7 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 
 public class MogonebaApplication extends Application {
-    //public static final Uri API_ENDPOINT = Uri.parse("http://yora-playground.3dbuzz.com");
-    public static final Uri API_ENDPOINT = Uri.parse("http://10.0.3.2:3000");
+    public static final Uri API_ENDPOINT = Uri.parse("http://yora-playground.3dbuzz.com");
     public static final String TOKEN = "2de72d6a4f784a28837f0557486cc23a";
 
     private Auth auth;
